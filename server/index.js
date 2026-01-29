@@ -10,6 +10,37 @@ if (!TOKEN) console.warn("Faltou BRAWLSTARS_TOKEN no ambiente.");
 
 const API = "https://api.brawlstars.com/v1";
 
+let _egressCache = { ip: null, ts: 0 };
+
+async function getEgressIp(){
+  const now = Date.now();
+  if(_egressCache.ip && (now - _egressCache.ts) < 10 * 60_000) return _egressCache.ip;
+
+  const ctrl = new AbortController();
+  const t = setTimeout(()=>ctrl.abort(), 4000);
+
+  try{
+    // ipify é leve e funciona bem pra descobrir o IP de saída (egress)
+    const r = await fetch("https://api.ipify.org?format=json", { signal: ctrl.signal });
+    const j = await r.json().catch(()=>null);
+    const ip = j?.ip || null;
+    if(ip){
+      _egressCache = { ip, ts: now };
+      return ip;
+    }
+  }catch{}
+  finally{ clearTimeout(t); }
+
+  return null;
+}
+
+function getClientIp(req){
+  const xf = req.headers["x-forwarded-for"];
+  if(typeof xf === "string" && xf.length) return xf.split(",")[0].trim();
+  return req.ip || null;
+}
+
+
 function normalizeTag(tag) {
   if (!tag) return "";
   const t = String(tag).trim().toUpperCase();
@@ -41,6 +72,29 @@ function sendErr(res, e){
 }
 
 app.get("/api/health", (_req,res)=> res.json({ ok:true }));
+
+app.get("/api/egress-ip", async (req, res) => {
+  try{
+    const egressIp = await getEgressIp();
+    res.json({
+      egressIp,
+      clientIp: getClientIp(req),
+      note: "egressIp = IP público usado pra sair do Render (pode mudar). clientIp = seu IP visto pelo proxy."
+    });
+  }catch(e){ sendErr(res,e); }
+});
+
+// Alias pra ficar bonitinho: /api/meuip
+app.get("/api/meuip", async (req, res) => {
+  try{
+    const egressIp = await getEgressIp();
+    res.json({
+      egressIp,
+      clientIp: getClientIp(req),
+      note: "Use o egressIp pra allowlist; no Render o ideal é allowlistar o RANGE de outbound IPs da região."
+    });
+  }catch(e){ sendErr(res,e); }
+});
 
 app.get("/api/player/:tag", async (req, res) => {
   try {

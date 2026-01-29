@@ -5,6 +5,7 @@ import { HomePage } from "./pages/HomePage.jsx";
 import { EventsPage } from "./pages/EventsPage.jsx";
 import { RankingsPage } from "./pages/RankingsPage.jsx";
 import { FavoritesPage } from "./pages/FavoritesPage.jsx";
+import { MeuIpPage } from "./pages/MeuIpPage.jsx";
 
 function TopBar(){
   const nav = useNavigate();
@@ -46,6 +47,7 @@ export default function App(){
           <Route path="/events" element={<EventsPage />} />
           <Route path="/rankings" element={<RankingsPage />} />
           <Route path="/favorites" element={<FavoritesPage />} />
+          <Route path="/meuip" element={<MeuIpPage />} />
           <Route path="*" element={<HomePage />} />
         </Routes>
       </div>

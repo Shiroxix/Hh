@@ -11,3 +11,7 @@ Páginas:
 - Eventos
 - Rankings (players/clubs)
 - Favoritos/Recentes
+
+
+Extra:
+- Página /meuip (mostra egress IP do Render para allowlist)
