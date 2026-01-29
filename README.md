@@ -34,3 +34,9 @@ SPA/React Router: já está configurado com rewrite `/* -> /index.html`.
 IP (allowlist):
 - Abra /meuip no site, ou chame /api/egress-ip no proxy.
 - No Render, prefira allowlistar os *Outbound IP ranges* da região no Dashboard.
+
+
+## Se o Render estiver rodando na raiz do repo
+O erro `Could not read package.json /opt/render/project/src/package.json` acontece quando o serviço foi criado apontando para a raiz do repo.
+Este repo agora tem `package.json` na raiz com `npm start` que sobe o backend em `server/index.js`.
+Recomendado mesmo assim: usar o `render.yaml` (Blueprint) pra subir 2 serviços (proxy + static).
